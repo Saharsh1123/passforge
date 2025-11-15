@@ -24,7 +24,7 @@ def no_params() -> tuple:
 # Gracefully exit the program after displaying a farewell message.
 def bye() -> None:
     pause_action(2, True, False)
-    print("Thank for using passforge! See you later!")
+    print("Thank for usingxx passforge! See you later!")
     sys.exit(0)
 
 # Map each function and its parameters to the action it corresponds to.
