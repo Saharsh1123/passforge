@@ -3,38 +3,47 @@ from typing import Tuple
 from generator import generate_password
 from ui import get_length, get_case, use_digits, pause_action, use_symbols, error_msg
 
-# Prompt the user to input all parameters required for password generation and return them.
-def generator_params() -> Tuple[bool, bool, bool, bool, bool]:
-    """
-       Collect all password generation parameters from the user.
 
-       Returns:
-           Tuple containing (length, use_upper, use_lower, use_digits, use_symbols).
-       """
+def generator_params() -> Tuple[int, bool, bool, bool, bool]:
+    """
+    Prompt user for all parameters required to generate a password.
+
+    Returns:
+        Tuple containing password length, use_uppercase, use_lowercase,
+        use_digits, and use_symbols flags.
+    """
+    # Ask user for password length and character set preferences
     length = get_length()
     upper, lower = get_case()
     digits = use_digits()
     symbols = use_symbols()
     return (length, upper, lower, digits, symbols)
 
-# Return empty tuple for functions without parameters.
-def no_params() -> tuple:
-    return ()
 
-# Gracefully exit the program after displaying a farewell message.
 def bye() -> None:
+    """
+    Display farewell message, pause briefly, then exit program gracefully.
+    """
     pause_action(2, True, False)
-    print("Thank for usingxx passforge! See you later!")
+    print("Thank for using passforge! See you later!")
     sys.exit(0)
 
-# Map each function and its parameters to the action it corresponds to.
+
+# Map commands to their handling functions and parameter-gathering functions
 command_map = {
     "generate": (generate_password, generator_params),
-    "quit": (bye, no_params),
+    "quit": (bye, lambda: ()),
 }
 
-# Main interactive loop that keeps the program running until the user quits.
+
 def menu() -> None:
+    """
+    Main interactive loop prompting user for commands.
+
+    Matches user input against valid commands,
+    calls appropriate functions with gathered parameters,
+    handles invalid input with error messages and pauses.
+    """
     valid = {
         "generate": [
             "gen",
@@ -49,6 +58,7 @@ def menu() -> None:
     }
 
     while True:
+        # Prompt user for their action choice
         actions = (
             input(
                 """
@@ -63,23 +73,27 @@ Select an Option:
         )
 
         found = False
-        for action, option in valid.items():
-            if actions in option:
-                func, param_func = command_map[action]
-                params = param_func()
-                output = func(*params)
+        for action, options in valid.items():
+            # Check if input matches any valid command alias
+            if actions in options:
+                func, param_func = command_map[action]  # Get associated functions
+                params = param_func()  # Gather parameters if any
+                output = func(*params)  # Execute action
                 if output is not None:
-                    print(output)
-                pause_action(2, True, True)
+                    print(output)  # Show output if returned
+                pause_action(2, True, True)  # Pause and clear screen
                 found = True
                 break
 
         if not found:
+            # Handle invalid input
             error_msg("Please enter one of the listed actions only!")
             pause_action(0.5, True, True)
 
 
-print("Welcome to Passforge\n")
-enter = input("Press any key to continue! ")
-pause_action(1.5, True, False)
-menu()
+if __name__ == "__main__":
+    print("Welcome to Passforge\n")
+    input("Press any key to continue! ")
+    pause_action(1.5, True, False)
+    menu()
+
