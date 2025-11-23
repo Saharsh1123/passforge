@@ -5,6 +5,8 @@ from typing import Tuple
 
 from ui import error_msg
 
+remove = {'"', "'", "(", ")", "+", ",", "[", "]", "{", "}"}
+symbols_pool = "".join(c for c in string.punctuation if c not in remove)
 
 def generate_pools(
     use_upper: bool, use_lower: bool, use_digits: bool, use_symbols: bool
@@ -50,8 +52,6 @@ def generate_pools(
 
     # Symbols (punctuation with unsafe characters removed).
     if use_symbols:
-        remove = {'"', "'", "(", ")", "+", ",", "[", "]", "{", "}"}
-        symbols_pool = "".join(c for c in string.punctuation if c not in remove)
         pools.append(symbols_pool)
         num_true += 1
 
@@ -75,8 +75,8 @@ def generate_password(
 
     The algorithm:
     1. Builds active character pools.
-    2. Divides the requested length evenly across enabled pools.
-    3. Distributes leftover characters randomly.
+    2. Ensures at least one character from each enabled pool is included.
+    3. Divides remaining length evenly across pools and distributes leftover randomly.
     4. Fills the password list using cryptographically secure randomness.
     5. Shuffles to remove patterns, then returns a formatted string.
 
@@ -91,7 +91,9 @@ def generate_password(
         A string containing the fully randomized password, or a failure message
         if no character categories were selected.
     """
+
     passwd = []
+    requested_length = length
 
     # Build pools and validate category selection.
     active_pools, num_true = generate_pools(
@@ -99,6 +101,13 @@ def generate_password(
     )
     if num_true == 0:
         return "Password generation failed — no character types selected."
+
+    # Ensure at least one character is selected from each pool
+    for pool in active_pools:
+        passwd.append(secrets.choice(pool))
+
+    # Assign updated length once at least one char type is selected
+    length = length - len(passwd)
 
     # Base count ensures every enabled category gets at least a fair share.
     base = length // num_true
@@ -114,12 +123,14 @@ def generate_password(
             passwd.append(secrets.choice(pool))
 
     # If rounding leaves the list short, fill arbitrarily.
-    while len(passwd) < length:
+    while len(passwd) < requested_length:
         pool = random.choice(active_pools)
         passwd.append(secrets.choice(pool))
 
     # Shuffle to avoid predictable ordering (e.g., letters → digits → symbols).
     random.shuffle(passwd)
 
-    return f"Your password: {''.join(passwd)}"
+    password = ''.join(passwd)
+    print(f"Your password: {password}")
+    return password
 
