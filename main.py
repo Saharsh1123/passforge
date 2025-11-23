@@ -17,7 +17,7 @@ def generator_params() -> Tuple[int, bool, bool, bool, bool]:
     upper, lower = get_case()
     digits = use_digits()
     symbols = use_symbols()
-    return (length, upper, lower, digits, symbols)
+    return length, upper, lower, digits, symbols
 
 
 def bye() -> None:
@@ -78,9 +78,9 @@ Select an Option:
             if actions in options:
                 func, param_func = command_map[action]  # Get associated functions
                 params = param_func()  # Gather parameters if any
-                output = func(*params)  # Execute action
+                output = func(*params)
                 if output is not None:
-                    print(output)  # Show output if returned
+                    print(output)  # Execute action
                 pause_action(2, True, True)  # Pause and clear screen
                 found = True
                 break
@@ -96,4 +96,3 @@ if __name__ == "__main__":
     input("Press any key to continue! ")
     pause_action(1.5, True, False)
     menu()
-

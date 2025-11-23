@@ -108,7 +108,9 @@ def get_length() -> int:
             continue
 
         if length <= 6:
-            error_msg("ERROR: Passwords with a length of 6 and under are not permitted!")
+            error_msg(
+                "ERROR: Passwords with a length of 6 and under are not permitted!"
+            )
             pause_action(0.5, True, True)
             continue
 
@@ -214,4 +216,3 @@ def use_symbols() -> bool:
     """
     pause_action(1.6, True, False)
     return get_yes_no("Do you want to use symbols in your password? ")
-
