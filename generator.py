@@ -8,6 +8,7 @@ from ui import error_msg
 remove = {'"', "'", "(", ")", "+", ",", "[", "]", "{", "}"}
 symbols_pool = "".join(c for c in string.punctuation if c not in remove)
 
+
 def generate_pools(
     use_upper: bool, use_lower: bool, use_digits: bool, use_symbols: bool
 ) -> Tuple:
@@ -36,14 +37,15 @@ def generate_pools(
     # Handle letter pools first (uppercase, lowercase, or both).
     if use_upper or use_lower:
         if use_upper and use_lower:
-            letter_pool = string.ascii_letters
+            pools.append(string.ascii_uppercase)
+            pools.append(string.ascii_lowercase)
+            num_true += 2
         elif use_lower:
-            letter_pool = string.ascii_lowercase
+            pools.append(string.ascii_lowercase)
+            num_true += 1
         else:  # use_upper only
-            letter_pool = string.ascii_uppercase
-
-        pools.append(letter_pool)
-        num_true += 1
+            pools.append(string.ascii_uppercase)
+            num_true += 1
 
     # Digits (0–9).
     if use_digits:
@@ -130,7 +132,6 @@ def generate_password(
     # Shuffle to avoid predictable ordering (e.g., letters → digits → symbols).
     random.shuffle(passwd)
 
-    password = ''.join(passwd)
+    password = "".join(passwd)
     print(f"Your password: {password}")
     return password
-
