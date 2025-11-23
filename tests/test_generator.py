@@ -45,8 +45,8 @@ class TestGeneratePools(unittest.TestCase):
     def test_generate_pools_upper_and_lower(self):
         """Test pool with uppercase and lowercase letters enabled (combined)."""
         pools, count = generate_pools(True, True, False, False)
-        self.assertEqual(pools, (string.ascii_letters,))
-        self.assertEqual(count, 1)
+        self.assertEqual(pools, (string.ascii_uppercase, string.ascii_lowercase))
+        self.assertEqual(count, 2)
 
     def test_generate_pools_upper_and_digits(self):
         """Test pool with uppercase letters and digits enabled."""
@@ -114,11 +114,12 @@ class TestGeneratePools(unittest.TestCase):
         self.assertEqual(
             pools,
             (
-                string.ascii_letters,
+                string.ascii_uppercase,
+                string.ascii_lowercase,
                 string.digits,
             ),
         )
-        self.assertEqual(count, 2)
+        self.assertEqual(count, 3)
 
     def test_generate_pools_upper_lower_and_symbols(self):
         """Test pool with uppercase, lowercase letters, and symbols enabled."""
@@ -126,11 +127,12 @@ class TestGeneratePools(unittest.TestCase):
         self.assertEqual(
             pools,
             (
-                string.ascii_letters,
+                string.ascii_uppercase,
+                string.ascii_lowercase,
                 symbols_pool,
             ),
         )
-        self.assertEqual(count, 2)
+        self.assertEqual(count, 3)
 
     def test_generate_pools_upper_digits_and_symbols(self):
         """Test pool with uppercase letters, digits, and symbols enabled."""
@@ -164,12 +166,13 @@ class TestGeneratePools(unittest.TestCase):
         self.assertEqual(
             pools,
             (
-                string.ascii_letters,
+                string.ascii_uppercase,
+                string.ascii_lowercase,
                 string.digits,
                 symbols_pool,
             ),
         )
-        self.assertEqual(count, 3)
+        self.assertEqual(count, 4)
 
     def test_generate_pools_none(self):
         """Test pool when no categories are enabled (should return empty and print error)."""
@@ -192,154 +195,148 @@ class TestGeneratePassword(unittest.TestCase):
         - Unrequested character types never appear.
     """
 
-    # Helper validation methods
-    def contains_uppercase(self, s: str) -> bool:
-        """Return True if the string contains at least one uppercase letter."""
+    def contains_uppercase(self, s):
         return any(c.isupper() for c in s)
 
-    def contains_lowercase(self, s: str) -> bool:
-        """Return True if the string contains at least one lowercase letter."""
+    def contains_lowercase(self, s):
         return any(c.islower() for c in s)
 
-    def contains_digits(self, s: str) -> bool:
-        """Return True if the string contains at least one digit."""
+    def contains_digits(self, s):
         return any(c.isdigit() for c in s)
 
-    def contains_symbols(self, s: str) -> bool:
-        """Return True if the string contains at least one valid symbol."""
+    def contains_symbols(self, s):
         return any(c in symbols_pool for c in s)
 
-    # --- Length tests ---
-
+    # --- length ---
     def test_generate_password_length(self):
-        """Generated passwords must match the requested length."""
-        for length in (7, 12, 50, 1000):
-            password = generate_password(length)
-            self.assertEqual(len(password), length)
+        for _ in range(500):
+            for length in (7, 12, 50, 1000):
+                password = generate_password(length)
+                self.assertEqual(len(password), length)
 
-    # --- Category-presence tests (one category) ---
-
+    # --- single-category ---
     def test_generate_password_contains_upper(self):
-        """Passwords with only uppercase enabled must contain only uppercase."""
-        password = generate_password(12, True, False, False, False)
-        self.assertTrue(self.contains_uppercase(password))
-        self.assertFalse(self.contains_lowercase(password))
-        self.assertFalse(self.contains_digits(password))
-        self.assertFalse(self.contains_symbols(password))
+        for _ in range(500):
+            p = generate_password(12, True, False, False, False)
+            self.assertTrue(self.contains_uppercase(p))
+            self.assertFalse(self.contains_lowercase(p))
+            self.assertFalse(self.contains_digits(p))
+            self.assertFalse(self.contains_symbols(p))
 
     def test_generate_password_contains_lower(self):
-        """Lowercase only."""
-        password = generate_password(12, False, True, False, False)
-        self.assertTrue(self.contains_lowercase(password))
-        self.assertFalse(self.contains_uppercase(password))
-        self.assertFalse(self.contains_digits(password))
-        self.assertFalse(self.contains_symbols(password))
+        for _ in range(500):
+            p = generate_password(12, False, True, False, False)
+            self.assertTrue(self.contains_lowercase(p))
+            self.assertFalse(self.contains_uppercase(p))
+            self.assertFalse(self.contains_digits(p))
+            self.assertFalse(self.contains_symbols(p))
 
     def test_generate_password_contains_digits(self):
-        """Digits only."""
-        password = generate_password(12, False, False, True, False)
-        self.assertTrue(self.contains_digits(password))
-        self.assertFalse(self.contains_lowercase(password))
-        self.assertFalse(self.contains_uppercase(password))
-        self.assertFalse(self.contains_symbols(password))
+        for _ in range(500):
+            p = generate_password(12, False, False, True, False)
+            self.assertTrue(self.contains_digits(p))
+            self.assertFalse(self.contains_lowercase(p))
+            self.assertFalse(self.contains_uppercase(p))
+            self.assertFalse(self.contains_symbols(p))
 
     def test_generate_password_contains_symbols(self):
-        """Symbols only."""
-        password = generate_password(12, False, False, False, True)
-        self.assertTrue(self.contains_symbols(password))
-        self.assertFalse(self.contains_lowercase(password))
-        self.assertFalse(self.contains_uppercase(password))
-        self.assertFalse(self.contains_digits(password))
+        for _ in range(500):
+            p = generate_password(12, False, False, False, True)
+            self.assertTrue(self.contains_symbols(p))
+            self.assertFalse(self.contains_lowercase(p))
+            self.assertFalse(self.contains_uppercase(p))
+            self.assertFalse(self.contains_digits(p))
 
-    # --- Two-category presence tests ---
-
+    # --- two categories ---
     def test_generate_password_contains_upper_and_lower(self):
-        """Uppercase + lowercase should both appear."""
-        password = generate_password(12, True, True, False, False)
-        self.assertTrue(self.contains_uppercase(password))
-        self.assertTrue(self.contains_lowercase(password))
-        self.assertFalse(self.contains_digits(password))
-        self.assertFalse(self.contains_symbols(password))
+        for _ in range(500):
+            p = generate_password(12, True, True, False, False)
+            self.assertTrue(self.contains_uppercase(p))
+            self.assertTrue(self.contains_lowercase(p))
+            self.assertFalse(self.contains_digits(p))
+            self.assertFalse(self.contains_symbols(p))
 
     def test_generate_password_contains_upper_and_digits(self):
-        """Uppercase + digits should appear; others must not."""
-        password = generate_password(12, True, False, True, False)
-        self.assertTrue(self.contains_uppercase(password))
-        self.assertTrue(self.contains_digits(password))
-        self.assertFalse(self.contains_symbols(password))
-        self.assertFalse(self.contains_lowercase(password))
+        for _ in range(500):
+            p = generate_password(12, True, False, True, False)
+            self.assertTrue(self.contains_uppercase(p))
+            self.assertTrue(self.contains_digits(p))
+            self.assertFalse(self.contains_lowercase(p))
+            self.assertFalse(self.contains_symbols(p))
 
     def test_generate_password_contains_upper_and_symbols(self):
-        """Uppercase + symbols."""
-        password = generate_password(12, True, False, False, True)
-        self.assertTrue(self.contains_uppercase(password))
-        self.assertTrue(self.contains_symbols(password))
-        self.assertFalse(self.contains_digits(password))
-        self.assertFalse(self.contains_lowercase(password))
+        for _ in range(500):
+            p = generate_password(12, True, False, False, True)
+            self.assertTrue(self.contains_uppercase(p))
+            self.assertTrue(self.contains_symbols(p))
+            self.assertFalse(self.contains_digits(p))
+            self.assertFalse(self.contains_lowercase(p))
 
     def test_generate_password_contains_lower_and_digits(self):
-        """Lowercase + digits."""
-        password = generate_password(12, False, True, True, False)
-        self.assertTrue(self.contains_digits(password))
-        self.assertTrue(self.contains_lowercase(password))
-        self.assertFalse(self.contains_symbols(password))
-        self.assertFalse(self.contains_uppercase(password))
+        for _ in range(500):
+            p = generate_password(12, False, True, True, False)
+            self.assertTrue(self.contains_lowercase(p))
+            self.assertTrue(self.contains_digits(p))
+            self.assertFalse(self.contains_uppercase(p))
+            self.assertFalse(self.contains_symbols(p))
 
     def test_generate_password_contains_lower_and_symbols(self):
-        """Lowercase + symbols."""
-        password = generate_password(12, False, True, False, True)
-        self.assertTrue(self.contains_symbols(password))
-        self.assertTrue(self.contains_lowercase(password))
-        self.assertFalse(self.contains_digits(password))
-        self.assertFalse(self.contains_uppercase(password))
+        for _ in range(500):
+            p = generate_password(12, False, True, False, True)
+            self.assertTrue(self.contains_lowercase(p))
+            self.assertTrue(self.contains_symbols(p))
+            self.assertFalse(self.contains_digits(p))
+            self.assertFalse(self.contains_uppercase(p))
 
     def test_generate_password_contains_digits_and_symbols(self):
-        """Digits + symbols."""
-        password = generate_password(12, False, False, True, True)
-        self.assertTrue(self.contains_digits(password))
-        self.assertTrue(self.contains_symbols(password))
-        self.assertFalse(self.contains_lowercase(password))
-        self.assertFalse(self.contains_uppercase(password))
+        for _ in range(500):
+            p = generate_password(12, False, False, True, True)
+            self.assertTrue(self.contains_digits(p))
+            self.assertTrue(self.contains_symbols(p))
+            self.assertFalse(self.contains_uppercase(p))
+            self.assertFalse(self.contains_lowercase(p))
 
-    # --- Three-category presence tests ---
-
+    # --- three categories ---
     def test_generate_password_contains_upper_lower_and_digits(self):
-        password = generate_password(12, True, True, True, False)
-        self.assertTrue(self.contains_digits(password))
-        self.assertTrue(self.contains_lowercase(password))
-        self.assertTrue(self.contains_uppercase(password))
-        self.assertFalse(self.contains_symbols(password))
+        for _ in range(500):
+            p = generate_password(12, True, True, True, False)
+            self.assertTrue(self.contains_uppercase(p))
+            self.assertTrue(self.contains_lowercase(p))
+            self.assertTrue(self.contains_digits(p))
+            self.assertFalse(self.contains_symbols(p))
 
     def test_generate_password_contains_upper_lower_and_symbols(self):
-        password = generate_password(12, True, True, False, True)
-        self.assertTrue(self.contains_symbols(password))
-        self.assertTrue(self.contains_lowercase(password))
-        self.assertTrue(self.contains_uppercase(password))
-        self.assertFalse(self.contains_digits(password))
+        for _ in range(500):
+            p = generate_password(12, True, True, False, True)
+            self.assertTrue(self.contains_uppercase(p))
+            self.assertTrue(self.contains_lowercase(p))
+            self.assertTrue(self.contains_symbols(p))
+            self.assertFalse(self.contains_digits(p))
 
     def test_generate_password_contains_upper_digits_and_symbols(self):
-        password = generate_password(12, True, False, True, True)
-        self.assertTrue(self.contains_digits(password))
-        self.assertTrue(self.contains_symbols(password))
-        self.assertTrue(self.contains_uppercase(password))
-        self.assertFalse(self.contains_lowercase(password))
+        for _ in range(500):
+            p = generate_password(12, True, False, True, True)
+            self.assertTrue(self.contains_uppercase(p))
+            self.assertTrue(self.contains_digits(p))
+            self.assertTrue(self.contains_symbols(p))
+            self.assertFalse(self.contains_lowercase(p))
 
     def test_generate_password_contains_lower_digits_and_symbols(self):
-        password = generate_password(12, False, True, True, True)
-        self.assertTrue(self.contains_digits(password))
-        self.assertTrue(self.contains_symbols(password))
-        self.assertTrue(self.contains_lowercase(password))
-        self.assertFalse(self.contains_uppercase(password))
+        for _ in range(500):
+            p = generate_password(12, False, True, True, True)
+            self.assertTrue(self.contains_lowercase(p))
+            self.assertTrue(self.contains_digits(p))
+            self.assertTrue(self.contains_symbols(p))
+            self.assertFalse(self.contains_uppercase(p))
 
-    # --- All categories enabled ---
-
+    # --- all categories ---
     def test_generate_password_contains_all(self):
-        """When all categories are enabled, all must appear."""
-        password = generate_password(12, True, True, True, True)
-        self.assertTrue(self.contains_digits(password))
-        self.assertTrue(self.contains_symbols(password))
-        self.assertTrue(self.contains_uppercase(password))
-        self.assertTrue(self.contains_lowercase(password))
+        for _ in range(500):
+            p = generate_password(12, True, True, True, True)
+            self.assertTrue(self.contains_uppercase(p))
+            self.assertTrue(self.contains_lowercase(p))
+            self.assertTrue(self.contains_digits(p))
+            self.assertTrue(self.contains_symbols(p))
 
 
 if __name__ == "__main__":
