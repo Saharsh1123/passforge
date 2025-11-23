@@ -133,5 +133,4 @@ def generate_password(
     random.shuffle(passwd)
 
     password = "".join(passwd)
-    print(f"Your password: {password}")
     return password
