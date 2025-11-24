@@ -1,9 +1,8 @@
 import secrets
 import string
-import random
 from typing import Tuple
 
-from ui import error_msg
+from src.ui import error_msg
 
 remove = {'"', "'", "(", ")", "+", ",", "[", "]", "{", "}"}
 symbols_pool = "".join(c for c in string.punctuation if c not in remove)
@@ -117,7 +116,7 @@ def generate_password(
 
     # Fill characters from each pool, distributing leftovers randomly.
     for pool in active_pools:
-        extra = random.randint(0, leftover) if leftover > 0 else 0
+        extra = secrets.randbelow(leftover + 1) if leftover > 0 else 0
         n_chars = base + extra
         leftover -= extra
 
@@ -126,11 +125,11 @@ def generate_password(
 
     # If rounding leaves the list short, fill arbitrarily.
     while len(passwd) < requested_length:
-        pool = random.choice(active_pools)
+        pool = secrets.choice(active_pools)
         passwd.append(secrets.choice(pool))
 
     # Shuffle to avoid predictable ordering (e.g., letters → digits → symbols).
-    random.shuffle(passwd)
+    secrets.SystemRandom().shuffle(passwd)
 
     password = "".join(passwd)
     return password
