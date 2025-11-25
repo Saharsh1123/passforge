@@ -1,6 +1,6 @@
-import os
+import subprocess
+import logging
 import platform
-import sys
 import time
 from typing import Tuple
 from rich.console import Console
@@ -43,14 +43,14 @@ def pause_action(
         cont()
     time.sleep(wait)
     if do_clear:
+        cmd = ["cls"] if platform.system() == "Windows" else ["clear"]
+
         try:
-            os.system("cls" if platform.system() == "Windows" else "clear")
-        except Exception:
-            # Ignore clear errors on unsupported environments
-            pass
-        # Fallback ANSI clear for compatible terminals
-        if sys.stdout.isatty():
-            print("\033[H\033[J", end="")
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Command failed with exit code {e.returncode}: {cmd}")
+        except Exception as e:
+            logging.error(f"Unexpected error running command {cmd}: {e}")
 
 
 YES = {"yes", "ye", "y", "", "yeah", "yea"}
