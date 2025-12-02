@@ -16,3 +16,49 @@ repos:
       - id: bandit
         args: [ "-r", ".", "-ll", "-iii", "--exit-zero" ]
         pass_filenames: false
+
+  - repo: https://github.com/returntocorp/semgrep
+    rev: v1.144.0
+    hooks:
+      - id: semgrep
+        name: semgrep ci
+        args: [ "--config", "p/ci" ]
+      - id: semgrep
+        name: semgrep auto
+        args: [ "--config", "auto" ]
+
+
+  - repo: https://github.com/pypa/pip-audit
+    rev: v2.9.0
+    hooks:
+      - id: pip-audit
+
+  - repo: local
+    hooks:
+      - id: pytest-cov
+        name: Run pytest with coverage
+        entry: pytest --cov=tests
+        language: system  # uses your local Python environment
+        types: [ python ]
+        pass_filenames: false
+
+
+  - repo: local
+    hooks:
+      - id: safety
+        name: safety vulnerability scan
+        entry: safety check --full-report
+        language: python
+        types: [ python ]
+        pass_filenames: false
+        additional_dependencies: [ 'safety' ]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.4.1
+    hooks:
+      - id: mypy
+        args: [ "--ignore-missing-imports" ]  # optional, helps with missing stubs/errors
+
+
+
+

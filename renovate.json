@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "automerge": true,
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "automerge": true,
+      "automergeType": "pr"
+    }
+  ],
+  "schedule": [
+    "before 5am on monday"
+  ]
+}
